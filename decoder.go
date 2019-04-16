@@ -75,7 +75,6 @@ func unhex(c byte) byte {
 // copy paste from https://golang.org/src/net/url/url.go with unencoded query buffering
 // and removed unnecessary checks, as we are only interested in query encoding
 func (d *Decoder) unescape(b []byte) error {
-	d.query.Reset()
 	// Count %, check that they're well-formed.
 	n := 0
 	for i := 0; i < len(b); {
@@ -166,6 +165,7 @@ func checkAndAlloc(v reflect.Value) reflect.Value {
 func (d *Decoder) decodeQuery(v reflect.Value) error {
 	var err error
 	if d.r != nil {
+		d.read.Reset()
 		_, err = io.Copy(&d.read, d.r)
 	}
 	if err != nil {

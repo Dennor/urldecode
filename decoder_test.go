@@ -20,8 +20,8 @@ type TestType struct {
 	BoolValue     bool                     `url:"bool_value"`
 	IntValue      int                      `url:"int_value"`
 	FloatValue    float64                  `url:"float_value"`
-	StringValue   string                   `url:"string_value"`
 	UnsignedValue uint                     `url:"unsigned_value"`
+	StringValue   string                   `url:"string_value"`
 	JSONValue     encoding.TextUnmarshaler `url:"json_value"`
 }
 
@@ -34,12 +34,12 @@ func (b *benchMockUnmarshalText) UnmarshalText(data []byte) error {
 
 var (
 	jsonValueMock = new(mockUnmarshalText)
-	urlBytes      = []byte("bool_value%3Dtrue%26int_value%3D5%26float_value%3D1.234%26string_value%3DBj%C3%B6rk%20Gu%C3%B0mundsd%C3%B3ttir%26unsigned_value%3D5%26json_value%3D%7B%22field1%22%3A%201%2C%20%22field2%22%3A%202%7D")
+	urlBytes      = []byte("bool_value=true&int_value=5&float_value=1.234&unsigned_value=5&json_value=%7B%22field1%22%3A%201%2C%20%22field2%22%3A%202%7D&string_value=http%3A%2F%2Fexample.com%2Fpath%3Fa%3Da%26b%3Db%26name%3DBj%C3%B6rk%20Gu%C3%B0mundsd%C3%B3ttir")
 	urlDecoded    = TestType{
 		BoolValue:     true,
 		IntValue:      5,
 		FloatValue:    1.234,
-		StringValue:   "Björk Guðmundsdóttir",
+		StringValue:   "http://example.com/path?a=a&b=b&name=Björk Guðmundsdóttir",
 		UnsignedValue: 5,
 		JSONValue:     jsonValueMock,
 	}

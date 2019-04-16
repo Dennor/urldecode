@@ -18,7 +18,6 @@ type decoderPool struct {
 func (d *decoderPool) Get() *Decoder {
 	dec := d.Pool.Get().(*Decoder)
 	dec.r = nil
-	dec.query.Reset()
 	dec.read.Reset()
 	return dec
 }
@@ -93,7 +92,6 @@ func (d *Decoder) unescape(b []byte) error {
 			i++
 		}
 	}
-	d.query.Reset()
 	d.query.Grow(len(b) - 2*n)
 	j := 0
 	for i := 0; i < len(b); {
@@ -172,10 +170,7 @@ func (d *Decoder) decodeQuery(v reflect.Value) error {
 		return err
 	}
 	fields := cachedTypeFields(v.Type())
-	if err := d.unescape(d.read.Bytes()); err != nil {
-		return err
-	}
-	b := d.query.Bytes()
+	b := d.read.Bytes()
 	for len(b) > 0 {
 		var token []byte
 		token, b = splitShift(b, bytes.IndexByte(b, '&'))
@@ -183,7 +178,16 @@ func (d *Decoder) decodeQuery(v reflect.Value) error {
 			continue
 		}
 		var key []byte
+		d.query.Reset()
 		key, token = splitShift(token, bytes.IndexByte(token, '='))
+		if err := d.unescape(key); err != nil {
+			return err
+		}
+		key = d.query.Bytes()
+		if err := d.unescape(token); err != nil {
+			return err
+		}
+		token = d.query.Bytes()[len(key):]
 		var f *field
 		for i := range fields {
 			if fields[i].foldFunc(fields[i].nameBytes, key) {
